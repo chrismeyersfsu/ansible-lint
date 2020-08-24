@@ -89,7 +89,7 @@ def report_outcome(matches: List["MatchError"], options) -> int:
 You can skip specific rules by adding them to the skip_list section of your configuration file:
 ```yaml
 # .ansible-lint
-warn_list:  # or 'skip_list' to silence them completly
+warn_list:  # or 'skip_list' to silence them completely
 """
     matched_rules = {match.rule.id: match.rule.shortdesc for match in matches}
     for id in sorted(matched_rules.keys()):
