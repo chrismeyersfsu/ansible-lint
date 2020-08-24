@@ -134,6 +134,8 @@ def get_cli_parser() -> argparse.ArgumentParser:
     parser.add_argument('-x', dest='skip_list', default=[], action='append',
                         help="only check rules whose id/tags do not "
                         "match these values")
+    parser.add_argument('-w', dest='warn_list', nargs="+",
+                        help="only warn about these rules")
     parser.add_argument('--nocolor', dest='colored',
                         default=hasattr(sys.stdout, 'isatty') and sys.stdout.isatty(),
                         action='store_false',
@@ -160,7 +162,7 @@ def get_cli_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def merge_config(file_config, cli_config) -> NamedTuple:
+def merge_config(file_config, cli_config) -> NamedTuple:  # noqa: C901
     if not file_config:
         return cli_config
 
@@ -193,6 +195,9 @@ def merge_config(file_config, cli_config) -> NamedTuple:
 
     if 'skip_list' in file_config:
         cli_config.skip_list = cli_config.skip_list + file_config['skip_list']
+
+    if 'warn_list' in file_config:
+        cli_config.warn_list = cli_config.skip_list + file_config['warn_list']
 
     if 'tags' in file_config:
         cli_config.tags = cli_config.tags + file_config['tags']

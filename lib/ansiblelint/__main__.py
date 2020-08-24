@@ -79,19 +79,30 @@ def choose_formatter_factory(
     return r
 
 
-def hint_about_skips(matches: List["MatchError"]):
-    """Display information about how to skip found rules."""
+def report_outcome(matches: List["MatchError"], options) -> int:
+    """Display information about how to skip found rules.
+
+    Returns exit code, 2 if erros were found, 0 when only warnings were found.
+    """
+    failure = False
     msg = """\
 You can skip specific rules by adding them to the skip_list section of your configuration file:
 ```yaml
 # .ansible-lint
-skip_list:
+warn_list:  # or 'skip_list' to silence them completly
 """
     matched_rules = {match.rule.id: match.rule.shortdesc for match in matches}
     for id in sorted(matched_rules.keys()):
-        msg += f"  - '{id}'  # {matched_rules[id]}'\n"
+        if id not in options.warn_list:
+            msg += f"  - '{id}'  # {matched_rules[id]}'\n"
+            failure = True
     msg += "```"
-    console.print(Markdown(msg))
+
+    if failure:
+        console.print(Markdown(msg))
+        return 2
+    else:
+        return 0
 
 
 def main() -> int:
@@ -154,8 +165,7 @@ def main() -> int:
             print(formatter.format(match))
 
     if matches:
-        hint_about_skips(matches)
-        return 2
+        return report_outcome(matches, options=options)
     else:
         return 0
 
